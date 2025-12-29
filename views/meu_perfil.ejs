@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Perfil</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+    <style>
+        .tab-content { display: none; border-top: 1px solid var(--muted-border-color); padding-top: 20px; }
+        .tab-content.active { display: block; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 0; }
+        .tab-btn { background: none; border: none; border-bottom: 3px solid transparent; cursor: pointer; color: var(--muted-color); }
+        .tab-btn.active { border-bottom-color: var(--primary); color: var(--primary); font-weight: bold; }
+        .st-tarcisio { text-align: center; font-style: italic; opacity: 0.7; margin-top: 30px; }
+        /* Estilo para campo bloqueado */
+        input[readonly] { background-color: var(--card-background-color); opacity: 0.6; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <nav>
+            <ul><li><strong>Meu Perfil</strong></li></ul>
+            <ul>
+                <li><a href="/">Voltar</a></li>
+                <li><a href="/logout" role="button" class="secondary outline">Sair</a></li>
+            </ul>
+        </nav>
+
+        <% if (messages.success) { %>
+            <article style="background-color: #2e7d32; color: white;"><%= messages.success %></article>
+        <% } %>
+        <% if (messages.danger) { %>
+            <article style="background-color: #c62828; color: white;"><%= messages.danger %></article>
+        <% } %>
+
+        <hgroup>
+            <h2>Olá, <%= currentUser.nome %></h2>
+            <p>Gerencie suas informações.</p>
+        </hgroup>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="openTab(event, 'dados')">Meus Dados</button>
+            <button class="tab-btn" onclick="openTab(event, 'senha')">Segurança</button>
+        </div>
+
+        <div id="dados" class="tab-content active">
+            <form action="/meu-perfil/atualizar" method="post">
+                <label for="nome">Nome de Exibição</label>
+                <input type="text" name="nome" value="<%= currentUser.nome %>" required>
+
+                <label for="email">E-mail</label>
+                <% if (currentUser.isAdmin) { %>
+                    <input type="email" name="email" value="<%= currentUser.email %>" required>
+                    <small>Como Coordenador, você pode alterar seu e-mail de acesso.</small>
+                <% } else { %>
+                    <input type="email" name="email" value="<%= currentUser.email %>" readonly>
+                    <small>Para alterar seu e-mail, solicite ao coordenador.</small>
+                <% } %>
+                
+                <br><br>
+                <button type="submit">Salvar Dados</button>
+            </form>
+        </div>
+
+        <div id="senha" class="tab-content">
+            <form action="/meu-perfil/atualizar" method="post">
+                <label for="nova_senha">Nova Senha</label>
+                <input type="password" name="nova_senha" placeholder="Nova senha">
+                
+                <label for="confirmar_senha">Confirmar Nova Senha</label>
+                <input type="password" name="confirmar_senha" placeholder="Confirme a senha">
+                
+                <small>Deixe em branco se não quiser mudar.</small>
+                <button type="submit" class="contrast">Atualizar Senha</button>
+            </form>
+        </div>
+
+        <div class="st-tarcisio">
+            <hr>
+            <p>“<%= fraseSanto %>”</p>
+        </div>
+    </main>
+
+    <script>
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) { tabcontent[i].classList.remove("active"); }
+            tablinks = document.getElementsByClassName("tab-btn");
+            for (i = 0; i < tablinks.length; i++) { tablinks[i].classList.remove("active"); }
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.add("active");
+        }
+    </script>
+</body>
+</html>

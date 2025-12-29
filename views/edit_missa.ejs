@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Missa</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+</head>
+<body>
+    <main class="container">
+        <nav>
+            <ul><li><strong>Editar Missa</strong></li></ul>
+            <ul><li><a href="/admin">Voltar</a></li></ul>
+        </nav>
+        <article>
+            <form method="post">
+                <div class="grid">
+                    <label>Data
+                        <input type="date" name="data" value="<%= missa.data %>" required>
+                    </label>
+                    <label>Horário
+                        <input type="time" name="horario" value="<%= missa.horario %>" required>
+                    </label>
+                </div>
+                <label>Nome da Missa (Opcional)
+                    <input type="text" name="nome_personalizado" value="<%= missa.nome_personalizado || '' %>" placeholder="Ex: Missa Solene">
+                </label>
+                <button type="submit">Salvar Alterações</button>
+            </form>
+        </article>
+        <div style="text-align:center; font-style:italic; margin-top:20px;">
+            <%= fraseSanto %>
+        </div>
+    </main>
+</body>
+</html>

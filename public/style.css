@@ -1,0 +1,46 @@
+/* Ajustes Gerais */
+.vaga-input {
+    display: flex; gap: 1rem; align-items: center; margin-bottom: 0.5rem;
+}
+.vaga-input select { margin-bottom: 0; }
+.vaga-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0.5rem 0; border-bottom: 1px solid var(--card-border-color);
+}
+.vaga-item:last-child { border-bottom: none; }
+.form-alocar { display: inline-flex; gap: 0.5rem; align-items: center; margin: 0; }
+
+/* CARD DE FEEDBACK (Toast) */
+.flash-message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    min-width: 300px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    animation: slideIn 0.5s ease-out forwards;
+    opacity: 0;
+}
+
+/* Animação de entrada */
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+/* Animação de saída (usada via JS) */
+.slide-out {
+    animation: slideOut 0.5s ease-in forwards;
+}
+
+@keyframes slideOut {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(100%); opacity: 0; }
+}
+
+/* Estilo do Modal de Confirmação */
+dialog article {
+    border-top: 5px solid var(--primary);
+}
+dialog h3 { margin-bottom: 10px; }
+dialog p { margin-bottom: 20px; }

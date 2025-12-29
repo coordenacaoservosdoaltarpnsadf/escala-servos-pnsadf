@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Escala</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+    <style>
+        body { display: flex; justify-content: center; align-items: center; height: 100vh; }
+        article { width: 100%; max-width: 400px; }
+    </style>
+</head>
+<body>
+    <article>
+        <h3>Login</h3>
+        <% if (messages.danger) { %>
+            <div style="background: #e57373; color: white; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
+                <%= messages.danger %>
+            </div>
+        <% } %>
+        <form method="post" action="/login">
+            <input type="email" name="email" placeholder="Email" required>
+            <input type="password" name="password" placeholder="Senha" required>
+            <button type="submit">Entrar</button>
+        </form>
+    </article>
+</body>
+</html>

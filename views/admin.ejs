@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <title>Painel do Coordenador</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+    <link rel="stylesheet" href="/style.css">
+    <style>
+        /* Ajuste para a setinha do details ficar alinhada */
+        summary {
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            list-style: none; /* Remove padrão de alguns browsers */
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        /* Adiciona a setinha customizada ou usa a nativa do PicoCSS */
+        summary::after {
+            content: "▼"; 
+            font-size: 0.8rem;
+            transition: transform 0.2s;
+        }
+        details[open] summary::after {
+            transform: rotate(180deg);
+        }
+        /* Esconde o marcador padrão do Chrome/Safari para usar o nosso customizado */
+        details > summary::-webkit-details-marker {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <nav>
+            <ul><li><strong>Painel Admin</strong></li></ul>
+            <ul>
+                <li><a href="/">Ver Escala</a></li>
+                <li><a href="/meu-perfil">Meu Perfil</a></li>
+                <li><a href="/logout" role="button" class="secondary outline">Sair</a></li>
+            </ul>
+        </nav>
+
+        <div id="flash-container">
+            <% if (messages.success) { %>
+                <article class="flash-message" style="background-color: #2e7d32; color: white; border:none;">
+                    <strong>Sucesso!</strong><br><%= messages.success %>
+                </article>
+            <% } %>
+            <% if (messages.info) { %>
+                <article class="flash-message" style="background-color: #0288d1; color: white; border:none;">
+                    <strong>Info:</strong><br><%= messages.info %>
+                </article>
+            <% } %>
+            <% if (messages.danger) { %>
+                <article class="flash-message" style="background-color: #c62828; color: white; border:none;">
+                    <strong>Erro:</strong><br><%= messages.danger %>
+                </article>
+            <% } %>
+        </div>
+
+        <article>
+            <details open>
+                <summary>Gerenciar Missas</summary>
+                
+                <hr>
+
+                <h4 style="margin-top: 1rem;">Nova Missa</h4>
+                <form method="post" action="/admin/add_missa">
+                    <div class="grid">
+                        <label>Data <input type="date" name="data" required></label>
+                        <label>Horário <input type="time" name="horario" required></label>
+                    </div>
+                    <label>Nome (Opcional) <input type="text" name="nome_personalizado" placeholder="Ex: Missa Solene"></label>
+                    
+                    <fieldset id="vagas-container">
+                        <div class="vaga-input">
+                            <select name="funcao" required>
+                                <option value="" disabled selected>Função...</option>
+                                <% todasHabilidades.forEach(h => { %>
+                                    <option value="<%= h.funcao %>"><%= h.funcao %></option>
+                                <% }) %>
+                            </select>
+                        </div>
+                    </fieldset>
+                    <button type="button" onclick="addVaga()" class="secondary outline">+ Vaga</button>
+                    <button type="submit" style="margin-top:10px;">Salvar Missa</button>
+                </form>
+
+                <hr>
+
+                <div style="background-color: var(--card-sectionning-background-color); border: 1px dashed var(--primary); padding: 1rem; border-radius: 8px;">
+                    <header style="margin-bottom: 10px;"><strong>Facilitador de Escala</strong></header>
+                    <p style="margin-bottom: 15px; font-size: 0.9em;">
+                        Gera automaticamente as missas da <strong>próxima semana</strong> (Segunda a Domingo) com as funções <em>CM</em> e <em>CP</em>.
+                    </p>
+                    <form action="/admin/gerar-escala-padrao" method="post" onsubmit="confirmarAcao(event, 'Gerar Semana Padrão', 'Deseja criar automaticamente as missas da próxima semana? Isso não duplica missas existentes.')" style="margin-bottom: 0;">
+                        <button type="submit" class="contrast">📅 Gerar Semana Modelo</button>
+                    </form>
+                </div>
+
+                <hr>
+
+                <h4 style="margin-top: 1rem;">Missas Cadastradas</h4>
+                <% if (missas.length === 0) { %>
+                    <p>Nenhuma missa cadastrada.</p>
+                <% } %>
+
+                <% missas.forEach(missa => { 
+                    const titulo = missa.nome_personalizado ? missa.nome_personalizado : ("Missa de " + getDayName(missa.data));
+                %>
+                <article>
+                    <header>
+                        <strong><%= formatDate(missa.data) %> - <%= titulo %> (<%= missa.horario %>)</strong>
+                        <div style="float:right">
+                            <a href="/admin/edit_missa/<%= missa.id %>" role="button" class="secondary outline" style="padding:2px 5px;">Edit</a>
+                            <form action="/admin/delete_missa/<%= missa.id %>" method="post" style="display:inline;" onsubmit="confirmarAcao(event, 'Excluir Missa', 'Tem certeza que deseja apagar esta missa e todas as escalas dela?')">
+                                <button class="contrast outline" style="padding:2px 5px;">X</button>
+                            </form>
+                        </div>
+                    </header>
+                    <% missa.Vagas.forEach(vaga => { %>
+                    <div class="vaga-item">
+                        <span><%= vaga.funcao %>:</span>
+                        <div>
+                            <% if (vaga.Usuario) { %>
+                                <span><%= vaga.Usuario.nome %></span>
+                                <form action="/admin/unassign_vaga/<%= vaga.id %>" method="post" class="form-alocar">
+                                    <button class="secondary outline" style="padding:2px 8px;">Remover</button>
+                                </form>
+                            <% } else { %>
+                                <form action="/admin/assign_vaga/<%= vaga.id %>" method="post" class="form-alocar">
+                                    <select name="usuario_id" required style="width: auto; margin:0;">
+                                        <option value="" disabled selected>Selecionar...</option>
+                                        <% if(vaga.acolitos_qualificados) { %>
+                                            <optgroup label="--- DISPONÍVEIS NO DIA ---">
+                                                <% vaga.acolitos_qualificados.forEach(a => { if(a.is_candidato) { %>
+                                                    <option value="<%= a.id %>">⭐ <%= a.nome %></option>
+                                                <% } }) %>
+                                            </optgroup>
+                                            <optgroup label="--- OUTROS HABILITADOS ---">
+                                                <% vaga.acolitos_qualificados.forEach(a => { if(!a.is_candidato) { %>
+                                                    <option value="<%= a.id %>"><%= a.nome %></option>
+                                                <% } }) %>
+                                            </optgroup>
+                                        <% } %>
+                                    </select>
+                                    <button class="contrast" style="padding:5px;">OK</button>
+                                </form>
+                            <% } %>
+                        </div>
+                    </div>
+                    <% }) %>
+                </article>
+                <% }) %>
+            </details>
+        </article>
+
+        <article>
+            <details>
+                <summary>Gerenciar Acólitos</summary>
+                
+                <hr>
+                
+                <h4 style="margin-top: 1rem;">Novo Cadastro</h4>
+                <form action="/admin/add_user" method="post">
+                    <div class="grid">
+                        <input type="text" name="nome" placeholder="Nome" required>
+                        <input type="email" name="email" placeholder="Email" required>
+                        <input type="password" name="password" placeholder="Senha" required>
+                    </div>
+                    <button type="submit">Cadastrar</button>
+                </form>
+
+                <hr>
+
+                <h4>Lista de Acólitos</h4>
+                <table>
+                    <thead><tr><th>Nome</th><th>Ações</th></tr></thead>
+                    <tbody>
+                        <% usuarios.forEach(u => { %>
+                        <tr>
+                            <td><%= u.nome %></td>
+                            <td>
+                                <% if (!u.isAdmin) { %>
+                                    <a href="/admin/usuario/<%= u.id %>">Habilidades</a> | 
+                                    <form action="/admin/delete_user/<%= u.id %>" method="post" style="display:inline;" onsubmit="confirmarAcao(event, 'Excluir Acólito', 'Tem certeza que deseja remover <%= u.nome %> do sistema?')">
+                                        <button class="contrast outline" style="padding:2px; font-size:0.7em;">Excluir</button>
+                                    </form>
+                                <% } else { %> ADMIN <% } %>
+                            </td>
+                        </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </details>
+        </article>
+
+        <article>
+            <details>
+                <summary>Ata e Manutenção</summary>
+                <hr>
+                <div class="grid" style="margin-top: 1rem;">
+                    <a href="/admin/gerar-ata" role="button" class="contrast">Baixar Ata (PDF)</a>
+                    <form action="/admin/archive-manual" method="post" onsubmit="confirmarAcao(event, 'Arquivar Missas', 'Deseja arquivar todas as missas com mais de 15 dias?');" style="margin:0;">
+                        <button type="submit" class="secondary">Arquivar Missas Passadas</button>
+                    </form>
+                </div>
+            </details>
+        </article>
+        
+        <div style="text-align:center; margin-top:20px; font-style:italic;"><%= fraseSanto %></div>
+    </main>
+
+    <dialog id="modal-confirmacao">
+        <article>
+            <header>
+                <a href="#close" aria-label="Close" class="close" onclick="fecharModal()"></a>
+                <strong id="modal-titulo">Confirmação</strong>
+            </header>
+            <p id="modal-mensagem">Tem certeza?</p>
+            <footer>
+                <button class="secondary" onclick="fecharModal()">Cancelar</button>
+                <button id="modal-btn-confirmar">Confirmar</button>
+            </footer>
+        </article>
+    </dialog>
+
+    <script>
+        // Lógica de adicionar vaga no form
+        function addVaga() {
+            const container = document.getElementById('vagas-container');
+            const div = document.createElement('div');
+            div.className = 'vaga-input';
+            div.innerHTML = `<select name="funcao" required><option value="" disabled selected>Função...</option><% todasHabilidades.forEach(h => { %><option value="<%= h.funcao %>"><%= h.funcao %></option><% }) %></select><button type="button" onclick="this.parentElement.remove()" class="secondary outline" style="width:auto; padding: 0.5rem;">-</button>`;
+            container.appendChild(div);
+        }
+
+        // Lógica do Modal de Confirmação
+        const modal = document.getElementById('modal-confirmacao');
+        const titulo = document.getElementById('modal-titulo');
+        const mensagem = document.getElementById('modal-mensagem');
+        const btnConfirmar = document.getElementById('modal-btn-confirmar');
+        let formParaSubmeter = null;
+
+        function confirmarAcao(event, tit, msg) {
+            event.preventDefault();
+            formParaSubmeter = event.target;
+            titulo.innerText = tit;
+            mensagem.innerText = msg;
+            modal.setAttribute('open', true);
+        }
+
+        function fecharModal() {
+            modal.removeAttribute('open');
+            formParaSubmeter = null;
+        }
+
+        btnConfirmar.addEventListener('click', () => {
+            if (formParaSubmeter) {
+                formParaSubmeter.submit();
+            }
+            fecharModal();
+        });
+
+        // Sumir com as mensagens Flash automaticamente
+        setTimeout(() => {
+            const flashes = document.querySelectorAll('.flash-message');
+            flashes.forEach(f => {
+                f.classList.add('slide-out');
+                setTimeout(() => f.remove(), 500);
+            });
+        }, 4000);
+    </script>
+</body>
+</html>

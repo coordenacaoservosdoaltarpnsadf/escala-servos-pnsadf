@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <title>Minha Escala</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+    <link rel="stylesheet" href="/style.css">
+    <style>
+        .card-vaga {
+            border: 1px solid var(--card-border-color);
+            padding: 1rem; border-radius: 8px; margin-bottom: 1rem;
+            background-color: var(--card-background-color);
+        }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <nav>
+            <ul><li><strong>Minha Escala</strong></li></ul>
+            <ul>
+                <li><a href="/">Voltar</a></li>
+                <li><a href="/logout" role="button" class="secondary outline">Sair</a></li>
+            </ul>
+        </nav>
+
+        <div id="flash-container">
+            <% if (messages.success) { %>
+                <article class="flash-message" style="background-color: #2e7d32; color: white; border:none;">
+                    <strong>Sucesso!</strong><br><%= messages.success %>
+                </article>
+            <% } %>
+            <% if (messages.danger) { %>
+                <article class="flash-message" style="background-color: #c62828; color: white; border:none;">
+                    <strong>Erro:</strong><br><%= messages.danger %>
+                </article>
+            <% } %>
+        </div>
+
+        <a href="https://wa.me/?text=Pessoal, verifiquem o sistema, houve alterações na escala." target="_blank" role="button" class="contrast outline" style="margin-bottom: 20px; width: 100%;">
+            📢 Avisar no WhatsApp
+        </a>
+
+        <h3>Minhas Vagas</h3>
+        <% if (minhasVagas && minhasVagas.length > 0) { %>
+            <% minhasVagas.forEach(vaga => { 
+                const titulo = vaga.Missa.nome_personalizado ? vaga.Missa.nome_personalizado : ("Missa de " + getDayName(vaga.Missa.data));
+            %>
+            <div class="card-vaga">
+                <header style="margin-bottom: 10px;">
+                    <strong><%= formatDate(vaga.Missa.data) %> - <%= titulo %></strong>
+                    <br><small><%= vaga.Missa.horario %></small>
+                </header>
+                Função: <strong><%= vaga.funcao %></strong>
+                <hr>
+                
+                <form action="/pedir-substituicao/<%= vaga.id %>" method="post" onsubmit="confirmarAcao(event)">
+                    <label for="motivo">Motivo da saída (Obrigatório):</label>
+                    <input type="text" name="motivo" placeholder="Ex: Doença, Viagem, Trabalho..." required>
+                    <button type="submit" class="secondary outline" style="margin-top: 10px;">Solicitar Substituição</button>
+                </form>
+            </div>
+            <% }) %>
+        <% } else { %>
+            <p>Você não está escalado para nenhuma missa futura.</p>
+        <% } %>
+
+        <hr>
+
+        <article>
+            <hgroup>
+                <h2>Disponibilidade (Próximos 30 Dias)</h2>
+                <p>Marque os dias que você pode servir. A lista é renovada mensalmente.</p>
+            </hgroup>
+            
+            <form action="/minha-disponibilidade" method="post">
+                <% if (datasUnicas.length > 0) { %>
+                <div class="grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px;">
+                    <% datasUnicas.forEach(missa => { 
+                        const diaSemana = getDayName(missa.data);
+                        const dataFmt = formatDate(missa.data);
+                        const checked = datasMarcadas.includes(missa.data) ? 'checked' : '';
+                        const isDomingo = diaSemana === 'Domingo';
+                        const borderStyle = isDomingo ? 'border-color: var(--primary);' : 'border-color: var(--card-border-color);';
+                    %>
+                    <label style="border: 1px solid; <%= borderStyle %> padding: 10px; border-radius: 5px; cursor: pointer; text-align:center;">
+                        <input type="checkbox" name="datas" value="<%= missa.data %>" <%= checked %> style="margin-bottom:5px;">
+                        <br>
+                        <strong><%= dataFmt %></strong><br>
+                        <small><%= diaSemana %></small>
+                    </label>
+                    <% }) %>
+                </div>
+                <br>
+                <button type="submit">Salvar Disponibilidade</button>
+                <% } else { %>
+                    <p>Não há missas cadastradas para os próximos 30 dias.</p>
+                <% } %>
+            </form>
+        </article>
+    </main>
+
+    <dialog id="modal-confirmacao">
+        <article>
+            <header>
+                <a href="#close" aria-label="Close" class="close" onclick="fecharModal()"></a>
+                <strong>Liberar Vaga</strong>
+            </header>
+            <p>Você tem certeza que deseja sair desta escala? <br> O coordenador receberá o motivo informado por e-mail.</p>
+            <footer>
+                <button class="secondary" onclick="fecharModal()">Cancelar</button>
+                <button id="modal-btn-confirmar">Confirmar Saída</button>
+            </footer>
+        </article>
+    </dialog>
+
+    <script>
+        const modal = document.getElementById('modal-confirmacao');
+        const btnConfirmar = document.getElementById('modal-btn-confirmar');
+        let formParaSubmeter = null;
+
+        function confirmarAcao(event) {
+            event.preventDefault();
+            formParaSubmeter = event.target;
+            modal.setAttribute('open', true);
+        }
+
+        function fecharModal() {
+            modal.removeAttribute('open');
+            formParaSubmeter = null;
+        }
+
+        btnConfirmar.addEventListener('click', () => {
+            if (formParaSubmeter) { formParaSubmeter.submit(); }
+            fecharModal();
+        });
+
+        // Toast remover
+        setTimeout(() => {
+            const flashes = document.querySelectorAll('.flash-message');
+            flashes.forEach(f => {
+                f.classList.add('slide-out');
+                setTimeout(() => f.remove(), 500);
+            });
+        }, 4000);
+    </script>
+</body>
+</html>

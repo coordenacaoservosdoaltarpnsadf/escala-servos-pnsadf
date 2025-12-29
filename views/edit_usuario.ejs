@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Habilidades</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+</head>
+<body>
+    <main class="container">
+        <nav>
+            <ul><li><strong>Habilidades de <%= usuario.nome %></strong></li></ul>
+            <ul><li><a href="/admin">Voltar</a></li></ul>
+        </nav>
+        <article>
+            <form method="post">
+                <% todasHabilidades.forEach(h => { 
+                    const checked = usuario.Habilidades.some(uh => uh.id === h.id) ? 'checked' : '';
+                %>
+                <label>
+                    <input type="checkbox" name="habilidades" value="<%= h.id %>" <%= checked %>>
+                    <%= h.funcao %>
+                </label>
+                <% }) %>
+                <button type="submit">Salvar</button>
+            </form>
+        </article>
+    </main>
+</body>
+</html>

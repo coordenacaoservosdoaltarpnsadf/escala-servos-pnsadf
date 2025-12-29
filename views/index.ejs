@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escala de Acólitos</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="container">
+        <nav>
+            <ul><li><strong>Escala de Acólitos</strong></li></ul>
+            <ul>
+                <% if (currentUser && currentUser.isAdmin) { %>
+                    <li><a href="/admin">Admin</a></li>
+                <% } %>
+                <li><a href="/meu-perfil">Meu Perfil</a></li>
+                <li><a href="/logout" role="button" class="secondary outline">Sair</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <main class="container">
+        <div id="flash-container">
+            <% if (messages.error) { %>
+                <article class="flash-message" style="background-color: #c62828; color: white; border:none;">
+                    <%= messages.error %>
+                </article>
+            <% } %>
+        </div>
+
+        <hgroup>
+            <h1>Escala Disponível</h1>
+            <p>Clique em uma vaga para servir.</p>
+        </hgroup>
+        
+        <div id="schedule-container">
+            <p style="text-align:center;">Carregando escala...</p>
+        </div>
+
+        <div style="text-align: center; margin-top: 3rem; opacity: 0.7;">
+            <hr>
+            <small><em>"<%= fraseSanto %>"</em></small>
+        </div>
+    </main>
+
+    <dialog id="modal-inscricao">
+        <article>
+            <header>
+                <a href="#close" aria-label="Close" class="close" onclick="fecharModal()"></a>
+                <strong>Assumir Vaga</strong>
+            </header>
+            <p>Deseja assumir esta vaga em honra a São Tarcísio?</p>
+            <footer>
+                <button class="secondary" onclick="fecharModal()">Cancelar</button>
+                <button id="btn-confirmar-inscricao">Sim, eu quero!</button>
+            </footer>
+        </article>
+    </dialog>
+
+    <script src="/script.js"></script>
+</body>
+</html>
