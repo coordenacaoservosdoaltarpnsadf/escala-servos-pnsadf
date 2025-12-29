@@ -1,28 +1,123 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Escala</title>
+    <title>Login - Servos do Altar</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
     <style>
-        body { display: flex; justify-content: center; align-items: center; height: 100vh; }
-        article { width: 100%; max-width: 400px; }
+        /* Centraliza tudo na tela */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            background-color: #121c24; /* Um fundo ligeiramente diferente para destacar o card */
+        }
+
+        /* O container principal do login (o cartão) */
+        .login-card {
+            width: 100%;
+            max-width: 900px; /* Mais largo para caber a imagem e o form lado a lado */
+            padding: 0; /* Remove padding padrão do article para a imagem encostar na borda */
+            overflow: hidden; /* Garante que a imagem não vaze nos cantos arredondados */
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4); /* Sombra elegante */
+            border: none; /* Remove borda padrão do Pico */
+            border-radius: 15px;
+        }
+
+        /* Grid para dividir imagem e formulário em telas grandes */
+        .login-grid {
+            display: grid;
+            grid-template-columns: 1fr; /* Padrão mobile: uma coluna empilhada */
+        }
+
+        /* A área da imagem */
+        .login-image {
+            /* URL da imagem de São Tarcísio (Escultura clássica) */
+            background-image: url('https://i.pinimg.com/564x/61/18/a3/6118a3556dfddbd2b0366a826d736203.jpg');
+            background-size: cover;
+            background-position: center 20%; /* Foca mais na parte superior da imagem */
+            min-height: 300px; /* Altura mínima no celular */
+            position: relative;
+        }
+
+        /* Overlay escuro sobre a imagem para dar um tom mais solene */
+        .login-image::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.5));
+        }
+
+        /* A área do formulário */
+        .login-form-container {
+            padding: 3rem 2.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background-color: var(--card-background-color);
+        }
+
+        /* Estilo da frase do santo no rodapé */
+        .quote-footer {
+            margin-top: 2rem;
+            text-align: center;
+            font-style: italic;
+            font-size: 0.85rem;
+            opacity: 0.6;
+        }
+
+        /* AJUSTES PARA TELAS GRANDES (Desktop/Tablet) */
+        @media (min-width: 768px) {
+            .login-grid {
+                grid-template-columns: 1.1fr 0.9fr; /* Divide: Imagem um pouco maior que o form */
+                min-height: 550px; /* Altura fixa para o card ficar imponente */
+            }
+            .login-image {
+                min-height: auto; /* A imagem vai esticar para preencher a altura do grid */
+            }
+        }
     </style>
 </head>
 <body>
-    <article>
-        <h3>Login</h3>
-        <% if (messages.danger) { %>
-            <div style="background: #e57373; color: white; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
-                <%= messages.danger %>
+    <article class="login-card">
+        <div class="login-grid">
+            
+            <div class="login-image" role="img" aria-label="Imagem de São Tarcísio">
+                </div>
+
+            <div class="login-form-container">
+                <hgroup>
+                    <h1>Bem-vindo(a)</h1>
+                    <p>Sistema de Escala dos Servos do Altar</p>
+                </hgroup>
+
+                <% if (messages.danger) { %>
+                    <div style="background-color: #c62828; color: white; padding: 10px 15px; border-radius: 5px; margin-bottom: 20px; font-size: 0.9rem;">
+                        ⚠️ <%= messages.danger %>
+                    </div>
+                <% } %>
+                
+                <form method="post" action="/login">
+                    <label for="email">E-mail
+                        <input type="email" name="email" id="email" placeholder="seu@email.com" required>
+                    </label>
+                    
+                    <label for="password">Senha
+                        <input type="password" name="password" id="password" placeholder="••••••••" required>
+                    </label>
+
+                    <button type="submit" class="contrast" style="margin-top: 1rem; width: 100%;">Entrar no Sistema</button>
+                </form>
+
+                <div class="quote-footer">
+                    <hr style="margin: 1.5rem 0;">
+                    "São Tarcísio, mártir da Eucaristia, rogai por nós."
+                </div>
             </div>
-        <% } %>
-        <form method="post" action="/login">
-            <input type="email" name="email" placeholder="Email" required>
-            <input type="password" name="password" placeholder="Senha" required>
-            <button type="submit">Entrar</button>
-        </form>
+        </div>
     </article>
 </body>
 </html>
