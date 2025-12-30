@@ -1,27 +1,18 @@
 const { Sequelize, DataTypes } = require('sequelize');
 const bcrypt = require('bcryptjs');
 
-// Verifica se existe uma URL de banco no .env (Supabase)
-// Se não existir, usa o SQLite localmente
+// Verifica conexão (Supabase ou Local)
 const isProduction = process.env.DATABASE_URL ? true : false;
-
 let sequelize;
 
 if (isProduction) {
-    // Configuração para Postgres (Supabase)
     sequelize = new Sequelize(process.env.DATABASE_URL, {
         dialect: 'postgres',
         protocol: 'postgres',
-        dialectOptions: {
-            ssl: {
-                require: true,
-                rejectUnauthorized: false // Necessário para conectar no Supabase
-            }
-        },
+        dialectOptions: { ssl: { require: true, rejectUnauthorized: false } },
         logging: false
     });
 } else {
-    // Configuração para SQLite (Local)
     sequelize = new Sequelize({
         dialect: 'sqlite',
         storage: 'database.sqlite',
@@ -33,7 +24,10 @@ const Usuario = sequelize.define('Usuario', {
     nome: { type: DataTypes.STRING, allowNull: false },
     email: { type: DataTypes.STRING, allowNull: false, unique: true },
     senha_hash: { type: DataTypes.STRING, allowNull: true },
-    isAdmin: { type: DataTypes.BOOLEAN, defaultValue: false }
+    isAdmin: { type: DataTypes.BOOLEAN, defaultValue: false },
+    // NOVOS CAMPOS PARA RECUPERAÇÃO DE SENHA
+    resetPasswordToken: { type: DataTypes.STRING, allowNull: true },
+    resetPasswordExpires: { type: DataTypes.DATE, allowNull: true }
 });
 
 Usuario.prototype.checkPassword = function(password) {

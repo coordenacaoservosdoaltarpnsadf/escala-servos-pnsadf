@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR" data-theme="dark">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,7 +24,7 @@
             max-width: 900px;
             padding: 0;
             overflow: hidden;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
             border: none;
             border-radius: 15px;
             background-color: var(--card-background-color);
@@ -32,7 +33,8 @@
         /* Grid para dividir imagem e formulário */
         .login-grid {
             display: grid;
-            grid-template-columns: 1fr; /* Mobile: empilhado */
+            grid-template-columns: 1fr;
+            /* Mobile: empilhado */
         }
 
         /* A área da imagem */
@@ -49,8 +51,11 @@
         .login-image::after {
             content: '';
             position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.6));
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.6));
         }
 
         /* A área do formulário */
@@ -72,19 +77,22 @@
         /* Desktop: Lado a Lado */
         @media (min-width: 768px) {
             .login-grid {
-                grid-template-columns: 1.2fr 0.8fr; /* Imagem maior que o form */
+                grid-template-columns: 1.2fr 0.8fr;
+                /* Imagem maior que o form */
                 min-height: 600px;
             }
+
             .login-image {
                 min-height: auto;
             }
         }
     </style>
 </head>
+
 <body>
     <article class="login-card">
         <div class="login-grid">
-            
+
             <div class="login-image" role="img" aria-label="São Tarcísio"></div>
 
             <div class="login-form-container">
@@ -94,29 +102,37 @@
                 </hgroup>
 
                 <% if (messages.danger) { %>
-                    <div style="background-color: #c62828; color: white; padding: 10px 15px; border-radius: 5px; margin-bottom: 20px; font-size: 0.9rem;">
+                    <div
+                        style="background-color: #c62828; color: white; padding: 10px 15px; border-radius: 5px; margin-bottom: 20px; font-size: 0.9rem;">
                         <%= messages.danger %>
                     </div>
-                <% } %>
-                
-                <form method="post" action="/login">
-                    <label for="email">E-mail
-                        <input type="email" name="email" id="email" placeholder="seu@email.com" required>
-                    </label>
-                    
-                    <label for="password">Senha
-                        <input type="password" name="password" id="password" placeholder="••••••••" required>
-                    </label>
+                    <% } %>
 
-                    <button type="submit" class="contrast" style="margin-top: 1rem; width: 100%;">Entrar</button>
-                </form>
+                        <form method="post" action="/login">
+                            <label for="email">E-mail
+                                <input type="email" name="email" id="email" placeholder="seu@email.com" required>
+                            </label>
 
-                <div class="quote-footer">
-                    <hr style="margin: 1.5rem 0;">
-                    "São Tarcísio, mártir da Eucaristia, rogai por nós."
-                </div>
+                            <label for="password">Senha
+                                <input type="password" name="password" id="password" placeholder="••••••••" required>
+                            </label>
+
+                            <button type="submit" class="contrast"
+                                style="margin-top: 1rem; width: 100%;">Entrar</button>
+                            <div style="text-align: center; margin-top: 15px;">
+                                <a href="/esqueci-senha"
+                                    style="font-size: 0.9em; text-decoration: none; color: var(--primary);">Esqueci
+                                    minha senha</a>
+                            </div>
+                        </form>
+
+                        <div class="quote-footer">
+                            <hr style="margin: 1.5rem 0;">
+                            "São Tarcísio, mártir da Eucaristia, rogai por nós."
+                        </div>
             </div>
         </div>
     </article>
 </body>
+
 </html>
